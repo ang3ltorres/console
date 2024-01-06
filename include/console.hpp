@@ -2,6 +2,8 @@
 #include <cstdint>
 #include <string>
 
+typedef void *HANDLE;
+
 namespace console
 {
 	enum class color : uint32_t
@@ -149,12 +151,15 @@ namespace console
 		yellow_green = 0x9ACD32,
 	};
 
+	extern HANDLE handle;
+
 	void init();
 	std::string fg(uint8_t r, uint8_t g, uint8_t b);
 	std::string fg(const color& c);
 	std::string bg(uint8_t r, uint8_t g, uint8_t b);
 	std::string bg(const color& c);
 	void clear();
+	void set_cursor(uint16_t x, uint16_t y);
 	extern const std::string reset;
 	extern const std::string bold;
 	extern const std::string faint;

@@ -2,9 +2,9 @@
 #include <format>
 #include <iostream>
 #include <cstdlib>
-#ifdef _WIN32
-	#include <windows.h>
-#endif
+#include <windows.h>
+
+HANDLE console::handle = nullptr;
 
 const std::string console::reset = "\x1b[0m";
 const std::string console::bold = "\x1b[1m";
@@ -19,16 +19,17 @@ const std::string console::doubly = "\x1b[21m";
 
 void console::init()
 {
-	#ifdef _WIN32
-		// Enable UTF-8
-		SetConsoleOutputCP(65001);
+	// Global HANDLE
+	console::handle = GetStdHandle(STD_OUTPUT_HANDLE);
 
-		// Enable ANSI escape characters
-		HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
-		DWORD lpMode;
-		GetConsoleMode(out, &lpMode);
-		SetConsoleMode(out, lpMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
-	#endif
+	// Enable UTF-8
+	SetConsoleOutputCP(65001);
+
+	// Enable ANSI escape characters
+	DWORD lpMode;
+	GetConsoleMode(console::handle, &lpMode);
+	SetConsoleMode(console::handle, lpMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+
 }
 
 std::string console::fg(uint8_t r, uint8_t g, uint8_t b)
@@ -59,9 +60,10 @@ std::string console::bg(const color& c)
 
 void console::clear()
 {
-	#ifdef _WIN32
-		std::system("cls");
-	#elif __linux__
-		std::system("clear");
-	#endif
+	std::system("cls");
+}
+
+void console::set_cursor(uint16_t x, uint16_t y)
+{
+	SetConsoleCursorPosition(console::handle, {int16_t(x), int16_t(y)});
 }
